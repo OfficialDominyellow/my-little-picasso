@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Little Picasso - 마이 리틀 피카소</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-container">
+            <div class="logo">
+                <span class="logo-icon">🎨</span>
+                <h1>My Little Picasso</h1>
+                <span class="logo-badge">Gemma 4 AI</span>
+            </div>
+            <p class="tagline">사진을 올리면 귀여운 유치원생 눈높이의 그림일기로 만들어드려요!</p>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- 왼쪽 패널: 사진 업로드, 옵션 및 편집 영역 -->
+        <section class="card input-card">
+            <h2 class="card-title"><span>1</span> 사진 & 일기 설정</h2>
+
+            <!-- 드래그 & 드롭 사진 업로드 영역 -->
+            <div class="upload-dropzone" id="dropZone">
+                <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+                <div class="upload-placeholder" id="uploadPlaceholder">
+                    <div class="upload-icon">📷</div>
+                    <p class="upload-title">사진을 여기에 끌어다 놓거나 클릭하세요</p>
+                    <p class="upload-sub">JPG, PNG, WEBP (최대 15MB)</p>
+                </div>
+                <div class="preview-wrapper" id="previewWrapper" style="display: none;">
+                    <img id="photoPreview" alt="업로드 미리보기">
+                    <button type="button" class="btn-change-photo" id="btnChangePhoto">사진 다시 고르기</button>
+                </div>
+            </div>
+
+            <!-- 일기 생성 옵션 -->
+            <div class="options-grid">
+                <div class="form-group">
+                    <label for="selectLang">🌍 일기 언어</label>
+                    <select id="selectLang">
+                        <option value="ko" selected>한국어 (기본)</option>
+                        <option value="en">English (영어)</option>
+                        <option value="ja">日本語 (일본어)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="selectLength">📏 글 길이</label>
+                    <select id="selectLength">
+                        <option value="short" selected>짧게 (2~3문장)</option>
+                        <option value="normal">보통 (4~5문장)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 추가 메모/힌트 입력창 -->
+            <div class="form-group">
+                <label for="inputNotes">
+                    ✏️ 추가 메모 (선택사항)
+                    <span class="label-desc">아이의 말이나 기억하고 싶은 특별한 점을 적어주세요</span>
+                </label>
+                <input type="text" id="inputNotes" placeholder="예: 오늘 처음으로 혼자 자전거를 탔어요!">
+            </div>
+
+            <!-- 생성 버튼 -->
+            <button type="button" class="btn-primary btn-generate" id="btnGenerate" disabled>
+                <span class="btn-icon">✨</span>
+                <span class="btn-text">AI 그림일기 만들기</span>
+            </button>
+
+            <!-- 로딩 애니메이션 인디케이터 -->
+            <div class="loading-state" id="loadingState" style="display: none;">
+                <div class="spinner"></div>
+                <p class="loading-text">꼬마 피카소가 열심히 사진을 보고 일기를 쓰고 있어요...</p>
+            </div>
+
+            <!-- 2단계: 직접 수정 및 편집 영역 -->
+            <div class="edit-section" id="editSection" style="display: none;">
+                <hr class="divider">
+                <h2 class="card-title"><span>2</span> 일기 내용 직접 다듬기</h2>
+                <p class="card-desc">AI가 쓴 일기를 자유롭게 고쳐 쓸 수 있어요!</p>
+
+                <div class="meta-inputs-grid">
+                    <div class="form-group">
+                        <label for="editDate">📅 날짜</label>
+                        <input type="text" id="editDate" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="editWeather">☀️ 날씨</label>
+                        <select id="editWeather">
+                            <option value="맑음" selected>맑음</option>
+                            <option value="구름 많음">구름 많음</option>
+                            <option value="흐림">흐림</option>
+                            <option value="비">비</option>
+                            <option value="눈">눈</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editTitle">📛 제목</label>
+                    <input type="text" id="editTitle" placeholder="일기 제목">
+                </div>
+
+                <div class="form-group">
+                    <label for="editContent">📝 본문 (원고지 격자에 들어갈 글)</label>
+                    <textarea id="editContent" rows="5" placeholder="일기 본문을 작성하세요"></textarea>
+                    <div class="char-count" id="charCount">0 / 84자 권장</div>
+                </div>
+
+                <button type="button" class="btn-secondary" id="btnUpdatePreview">
+                    🔄 템플릿에 수정사항 반영하기
+                </button>
+            </div>
+        </section>
+
+        <!-- 오른쪽 패널: 그림일기 템플릿 미리보기 및 다운로드 -->
+        <section class="card preview-card">
+            <div class="preview-header">
+                <h2 class="card-title"><span>3</span> 완성된 그림일기 미리보기</h2>
+                <div class="preview-actions">
+                    <button type="button" class="btn-action btn-reset" id="btnReset" title="새로 시작">
+                        🔄 다시 만들기
+                    </button>
+                    <button type="button" class="btn-action btn-download" id="btnDownload" disabled>
+                        💾 PNG 다운로드
+                    </button>
+                </div>
+            </div>
+
+            <!-- 렌더링된 A4 이미지 미리보기 캔버스 컨테이너 -->
+            <div class="template-viewer" id="templateViewer">
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">📖</div>
+                    <h3>아직 만들어진 일기가 없어요</h3>
+                    <p>왼쪽에서 사진을 올리고<br><strong>[AI 그림일기 만들기]</strong>를 눌러보세요!</p>
+                </div>
+                <div class="rendered-image-box" id="renderedImageBox" style="display: none;">
+                    <img id="renderedImage" alt="완성된 그림일기">
+                </div>
+                <div class="render-loading" id="renderLoading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>원고지 템플릿을 정성껏 그리는 중...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 에러 알림 모달/토스트 -->
+    <div class="toast" id="toast" role="alert"></div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
+
