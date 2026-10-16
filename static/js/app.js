@@ -172,7 +172,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } catch (err) {
             console.error("AI 생성 실패:", err);
-            showToast(err.message, true);
+            let msg = err.message || "일기 생성 중 오류가 발생했습니다.";
+            if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
+                msg = "서버와 연결할 수 없습니다 (Failed to fetch). FastAPI 백엔드 서버(uvicorn)가 켜져 있는지 확인해주세요.";
+            }
+            showToast(msg, true);
             renderLoading.style.display = "none";
             if (!currentRenderBlobUrl) {
                 emptyState.style.display = "block";
@@ -222,7 +226,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } catch (err) {
             console.error("렌더링 실패:", err);
-            showToast("템플릿 렌더링 실패: " + err.message, true);
+            let msg = err.message || "템플릿 렌더링 실패";
+            if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
+                msg = "서버와 연결할 수 없습니다 (Failed to fetch). 백엔드 서버(uvicorn)가 켜져 있는지 확인해주세요.";
+            }
+            showToast(msg, true);
         } finally {
             renderLoading.style.display = "none";
         }

@@ -1,9 +1,16 @@
 import base64
 import io
 import os
+import sys
 from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
+
 from typing import Optional
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -13,12 +20,19 @@ from app.diary_service import generate_picture_diary
 from app.template_renderer import render_diary_template
 from app.schemas import GenerateDiaryResponse, PictureDiaryOutput
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-
 app = FastAPI(
     title="My Little Picasso - 마이 리틀 피카소",
     description="사진을 유치원생 눈높이의 귀여운 그림일기로 변환해주는 서비스",
     version="1.0.0",
+)
+
+# CORS 설정 (어떤 포트/도메인에서 프론트를 띄워도 fetch 실패 방지)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # 정적 파일 및 템플릿 설정
